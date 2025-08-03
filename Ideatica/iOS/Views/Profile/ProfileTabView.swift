@@ -22,11 +22,7 @@ struct ProfileTabView: View {
             }
         } else {
             VStack {
-                HeroView()
-                Button("Login") {
-                    authService.login()
-                }
-                .padding()
+                LoginPromptView(authService: authService)
             }
         }
     }

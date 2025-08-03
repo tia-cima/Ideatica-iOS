@@ -7,7 +7,9 @@
 
 import SwiftUI
 
-struct HeroView: View {
+struct LoginPromptView: View {
+    @ObservedObject var authService: AuthService
+
     var body: some View {
     #if os(iOS)
         VStack(alignment: .leading, spacing: 12) {
@@ -30,6 +32,11 @@ struct HeroView: View {
             Text("Where ideas meet.")
                 .font(.custom("SpaceGrotesk-Regular", size: 20))
                 .foregroundColor(.gray)
+            
+            Button("Login") {
+                authService.login()
+            }
+            .padding()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.horizontal, 24)

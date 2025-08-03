@@ -17,37 +17,43 @@ struct PostIdeaView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Title")) {
-                    TextField("Enter title", text: $title)
-                }
-                
-                Section(header: Text("Topic")) {
-                    TextField("Enter topic", text: $topic)
-                }
-                
-                Section(header: Text("Content")) {
-                    TextEditor(text: $content)
-                        .frame(height: 150)
-                }
-                
-                Section {
-                    Button("Submit Idea") {
-                        Task {
-                            await submitIdea()
+            Group {
+                if let token = authService.token {
+                    Form {
+                        Section(header: Text("Title")) {
+                            TextField("Enter title", text: $title)
+                        }
+                        
+                        Section(header: Text("Topic")) {
+                            TextField("Enter topic", text: $topic)
+                        }
+                        
+                        Section(header: Text("Content")) {
+                            TextEditor(text: $content)
+                                .frame(height: 150)
+                        }
+                        
+                        Section {
+                            Button("Submit Idea") {
+                                Task {
+                                    await submitIdea()
+                                }
+                            }
+                            .disabled(authService.token == nil)
+                        }
+                        
+                        if !message.isEmpty {
+                            Section {
+                                Text(message)
+                                    .foregroundColor(.gray)
+                            }
                         }
                     }
-                    .disabled(authService.token == nil)
-                }
-                
-                if !message.isEmpty {
-                    Section {
-                        Text(message)
-                            .foregroundColor(.gray)
-                    }
+                    .navigationTitle("Post a new idea")
+                } else {
+                    LoginPromptView(authService: authService)
                 }
             }
-            .navigationTitle("Post New Idea")
         }
     }
     
