@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Scheme</key>
+	<string>ideatica</string>
+	<key>Domain</key>
+	<string>dev-ly4vdhshyy04ftkz.eu.auth0.com</string>
+	<key>ClientId</key>
+	<string>dL6N4ZAHcY2HAd3ZgHe9P9vd94MQqAFy</string>
+</dict>
+</plist>
