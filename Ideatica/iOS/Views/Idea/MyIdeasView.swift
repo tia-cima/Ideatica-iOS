@@ -51,7 +51,6 @@ struct MyIdeasView: View {
             .navigationTitle("My Ideas")
             .task {
                 if let token = authService.token {
-                    print("Token exists: \(token)")
                     await viewModel.fetchIdeas(token: token)
                 }
             }
