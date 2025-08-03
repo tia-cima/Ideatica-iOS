@@ -10,18 +10,23 @@ import Auth0
 
 final class AuthService: ObservableObject {
     @Published var user: User?
+    @Published var token: String?
+
+    private let credentialsManager = CredentialsManager(authentication: Auth0.authentication())
     
     func login() {
         Auth0
             .webAuth(clientId: "dL6N4ZAHcY2HAd3ZgHe9P9vd94MQqAFy",
                      domain: "dev-ly4vdhshyy04ftkz.eu.auth0.com")
-            .scope("openid profile email")
-            .audience("https://dev-ly4vdhshyy04ftkz.eu.auth0.com/userinfo")
+            .scope("openid profile email offline_access")
+            .audience("https://dev-ly4vdhshyy04ftkz.eu.auth0.com/api/v2/")
             .redirectURL(URL(string: "ideatica://auth/callback")!)
             .start { result in
                 switch result {
                 case .success(let credentials):
                     self.user = User(from: credentials.idToken)
+                    self.token = credentials.accessToken
+                    self.credentialsManager.store(credentials: credentials)
                 case .failure(let error):
                     print("Login failed: \(error)")
                 }
@@ -36,10 +41,27 @@ final class AuthService: ObservableObject {
             .clearSession { result in
                 switch result {
                 case .success:
+                    self.credentialsManager.clear()
+                    self.token = nil
                     self.user = nil
                 case .failure(let error):
                     print("Logout failed: \(error)")
                 }
             }
+    }
+    
+    func restoreSession() {
+        credentialsManager.credentials { result in
+            switch result {
+            case .success(let credentials):
+                print("Session restored")
+                DispatchQueue.main.async {
+                    self.user = User(from: credentials.idToken)
+                    self.token = credentials.accessToken
+                }
+            case .failure(let error):
+                print("No valid session found: \(error)")
+            }
+        }
     }
 }

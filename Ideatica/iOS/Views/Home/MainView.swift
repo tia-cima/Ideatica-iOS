@@ -19,6 +19,12 @@ struct MainView: View {
                     Label("Ideas", systemImage: "lightbulb")
                 }
                 .tag(0)
+            
+            MyIdeasView(authService: authService)
+                .tabItem {
+                    Label("My Ideas", systemImage: "doc.text")
+                }
+                .tag(0)
 
             PostIdeaView()
                 .tabItem {
@@ -31,6 +37,9 @@ struct MainView: View {
                     Label("Profile", systemImage: "person.crop.circle")
                 }
                 .tag(2)
+        }
+        .onAppear {
+            authService.restoreSession()
         }
     }
 }
