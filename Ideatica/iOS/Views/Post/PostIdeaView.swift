@@ -63,7 +63,7 @@ struct PostIdeaView: View {
             return
         }
         
-        guard let url = URL(string: "http://localhost:3000/api/auth/idea/new") else {
+        guard let url = URL(string: "\(ApiConfig.baseURL)/auth/idea/new") else {
             message = "Invalid backend URL."
             return
         }

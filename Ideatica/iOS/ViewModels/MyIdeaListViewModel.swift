@@ -13,7 +13,7 @@ class MyIdeaListViewModel: ObservableObject {
     @Published var ideas: [Idea] = []
 
     func fetchIdeas(token: String) async {
-        guard let url = URL(string: "http://localhost:3000/api/auth/idea/me/ideas") else { return }
+        guard let url = URL(string: "\(ApiConfig.baseURL)/auth/idea/me/ideas") else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"

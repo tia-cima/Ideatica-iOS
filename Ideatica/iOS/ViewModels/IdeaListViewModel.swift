@@ -13,7 +13,7 @@ class IdeaListViewModel: ObservableObject {
     @Published var ideas: [Idea] = []
 
     func fetchIdeas() async {
-        guard let url = URL(string: "http://localhost:3000/api/public/idea/all") else { return }
+        guard let url = URL(string: "\(ApiConfig.baseURL)/public/idea/all") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
