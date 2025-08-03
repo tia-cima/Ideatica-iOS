@@ -8,33 +8,33 @@
 import SwiftUI
 
 struct HeroView: View {
-    private let tracking: CGFloat = -4
-
     var body: some View {
     #if os(iOS)
-        Image("Auth0")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 25, height: 28, alignment: .center)
-            .padding(.top, 8)
-        VStack(alignment: .leading, spacing: -32) {
-            Text("Swift")
-                .tracking(self.tracking)
+        VStack(alignment: .leading, spacing: 12) {
+            Image("Bulb")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 64, height: 64)
+                .padding(.top, 32)
+
+            Text("Ideatica")
+                .font(.custom("SpaceGrotesk-Medium", size: 64))
                 .foregroundStyle(
                     .linearGradient(
-                      colors: [Color("Orange"), Color("Pink")],
-                      startPoint: .topLeading,
-                      endPoint: .bottomTrailing
-                    ))
-            Text("Sample")
-                .tracking(self.tracking)
-            Text("App")
-                .tracking(self.tracking)
+                        colors: [Color("Orange"), Color("Pink")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            Text("Where ideas meet.")
+                .font(.custom("SpaceGrotesk-Regular", size: 20))
+                .foregroundColor(.gray)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .font(.custom("SpaceGrotesk-Medium", size: 80))
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(.horizontal, 24)
     #else
-        Text("Swift Sample App")
+        Text("Ideatica, where ideas meet.")
             .font(.title)
     #endif
     }
