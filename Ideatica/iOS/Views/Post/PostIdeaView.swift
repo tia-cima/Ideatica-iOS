@@ -9,6 +9,8 @@ import SwiftUI
 
 struct PostIdeaView: View {
     @ObservedObject var authService: AuthService
+    @Binding var selectedTab: Int
+    @State private var showAlert = false
     
     @State private var title = ""
     @State private var topic = ""
@@ -39,17 +41,14 @@ struct PostIdeaView: View {
                                     await submitIdea()
                                 }
                             }
-                            .disabled(authService.token == nil)
-                        }
-                        
-                        if !message.isEmpty {
-                            Section {
-                                Text(message)
-                                    .foregroundColor(.gray)
-                            }
                         }
                     }
                     .navigationTitle("Post a new idea")
+                    .alert(isPresented: $showAlert) {
+                        Alert(title: Text("Error"),
+                              message: Text(message),
+                              dismissButton: .default(Text("OK")))
+                    }
                 } else {
                     LoginPromptView(authService: authService)
                 }
@@ -60,11 +59,13 @@ struct PostIdeaView: View {
     func submitIdea() async {
         guard let token = authService.token else {
             message = "You're not authenticated."
+            showAlert = true
             return
         }
         
         guard let url = URL(string: "\(ApiConfig.baseURL)/auth/idea/new") else {
             message = "Invalid backend URL."
+            showAlert = true
             return
         }
 
@@ -89,12 +90,17 @@ struct PostIdeaView: View {
                     title = ""
                     topic = ""
                     content = ""
+                    DispatchQueue.main.async {
+                        selectedTab = 0
+                    }
                 } else {
                     message = "Failed with status code: \(httpResponse.statusCode)"
+                    showAlert = true
                 }
             }
         } catch {
             message = "Request failed: \(error.localizedDescription)"
+            showAlert = true
         }
     }
 }

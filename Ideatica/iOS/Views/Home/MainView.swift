@@ -26,7 +26,7 @@ struct MainView: View {
                 }
                 .tag(0)
 
-            PostIdeaView(authService: authService)
+            PostIdeaView(authService: authService, selectedTab: $selectedTab)
                 .tabItem {
                     Label("New Idea", systemImage: "plus.square")
                 }
