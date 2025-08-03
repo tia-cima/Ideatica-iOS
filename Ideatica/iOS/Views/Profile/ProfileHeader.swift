@@ -14,13 +14,19 @@ struct ProfileHeader: View {
 
     var body: some View {
     #if os(iOS)
-        AsyncImage(url: URL(string: picture), content: { image in
-            image.resizable()
-        }, placeholder: {
-            Color.clear
-        })
-        .frame(width: self.size, height: self.size)
-        .clipShape(Circle())
+        HStack {
+            Spacer()
+            AsyncImage(url: URL(string: picture), content: { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }, placeholder: {
+                Color.gray.opacity(0.1)
+            })
+            .frame(width: size, height: size)
+            .clipShape(Circle())
+            Spacer()
+        }
         .padding(.bottom, 24)
     #else
         Text("Profile")

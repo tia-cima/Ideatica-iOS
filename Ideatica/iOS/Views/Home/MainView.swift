@@ -19,12 +19,6 @@ struct MainView: View {
                     Label("Ideas", systemImage: "lightbulb")
                 }
                 .tag(0)
-            
-            MyIdeasView(authService: authService)
-                .tabItem {
-                    Label("My Ideas", systemImage: "doc.text")
-                }
-                .tag(0)
 
             PostIdeaView(authService: authService, selectedTab: $selectedTab)
                 .tabItem {

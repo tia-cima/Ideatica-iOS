@@ -12,16 +12,29 @@ struct ProfileTabView: View {
     @ObservedObject var authService: AuthService
 
     var body: some View {
-        if let user = authService.user {
-            VStack {
-                ProfileView(user: user)
-                Button("Logout") {
-                    authService.logout()
+        NavigationStack {
+            if let user = authService.user {
+                ScrollView {
+                    VStack(spacing: 24) {
+                        ProfileView(user: user)
+
+                        NavigationLink(destination: MyIdeasView(authService: authService)) {
+                            Text("View My Ideas")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(PrimaryButtonStyle(backgroundColor: .orange))
+                        .padding(.horizontal)
+
+                        Button("Logout") {
+                            authService.logout()
+                        }
+                        .buttonStyle(PrimaryButtonStyle(backgroundColor: .red))
+                        .padding(.horizontal)
+                    }
+                    .padding(.top)
                 }
-                .padding()
-            }
-        } else {
-            VStack {
+                .navigationTitle("Profile")
+            } else {
                 LoginPromptView(authService: authService)
             }
         }

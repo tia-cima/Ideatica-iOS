@@ -12,50 +12,38 @@ struct MyIdeasView: View {
     @StateObject private var viewModel = MyIdeaListViewModel()
 
     var body: some View {
-        NavigationView {
-            Group {
-                if let token = authService.token {
-                    List {
-                        ForEach(viewModel.ideas) { idea in
-                            NavigationLink(destination: IdeaDetailView(idea: idea)) {
-                                CardView(title: idea.title, topic: idea.topic)
-                            }
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .foregroundColor(Color(UIColor.secondarySystemBackground))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 4)
-                            )
+        Group {
+            if let token = authService.token {
+                List {
+                    ForEach(viewModel.ideas) { idea in
+                        NavigationLink(destination: IdeaDetailView(idea: idea)) {
+                            CardView(title: idea.title, topic: idea.topic)
                         }
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12)
+                                .foregroundColor(Color(UIColor.secondarySystemBackground))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                        )
                     }
-                    .listStyle(.plain)
-                    .navigationTitle("My Ideas")
-                    .task {
-                        if let token = authService.token {
-                            await viewModel.fetchIdeas(token: token)
-                        }
-                    }
-                    .onReceive(authService.$token.compactMap { $0 }) { token in
-                        Task {
-                            await viewModel.fetchIdeas(token: token)
-                        }
-                    }
-                } else {
-                    LoginPromptView(authService: authService)
                 }
+                .listStyle(.plain)
+                .navigationTitle("My Ideas")
+                .task {
+                    if let token = authService.token {
+                        await viewModel.fetchIdeas(token: token)
+                    }
+                }
+                .onReceive(authService.$token.compactMap { $0 }) { token in
+                    Task {
+                        await viewModel.fetchIdeas(token: token)
+                    }
+                }
+            } else {
+                LoginPromptView(authService: authService)
             }
         }
-    }
-
-    func formatDate(_ iso: String) -> String {
-        let formatter = ISO8601DateFormatter()
-        if let date = formatter.date(from: iso) {
-            let output = DateFormatter()
-            output.dateStyle = .medium
-            output.timeStyle = .short
-            return output.string(from: date)
-        }
-        return iso
+        .navigationTitle("My Ideas")
     }
 }
