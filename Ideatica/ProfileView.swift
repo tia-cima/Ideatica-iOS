@@ -8,11 +8,17 @@
 import SwiftUI
 
 struct ProfileView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    let user: User
 
-#Preview {
-    ProfileView()
+    var body: some View {
+        List {
+            Section(header: ProfileHeader(picture: user.picture)) {
+                ProfileCell(key: "ID", value: user.id)
+                ProfileCell(key: "Name", value: user.name)
+                ProfileCell(key: "Email", value: user.email)
+                ProfileCell(key: "Email verified?", value: user.emailVerified)
+                ProfileCell(key: "Updated at", value: user.updatedAt)
+            }
+        }
+    }
 }

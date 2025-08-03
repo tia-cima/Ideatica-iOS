@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		33C691772E3F763600166CE0 /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = 33C691762E3F763600166CE0 /* Auth0 */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		33C6913D2E3F659000166CE0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				33C691772E3F763600166CE0 /* Auth0 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 				33C691302E3F658E00166CE0 /* Ideatica */,
 				33C6913F2E3F659000166CE0 /* IdeaticaTests */,
 				33C691492E3F659000166CE0 /* IdeaticaUITests */,
+				33C691752E3F763600166CE0 /* Frameworks */,
 				33C6912F2E3F658E00166CE0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +96,13 @@
 				33C691462E3F659000166CE0 /* IdeaticaUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		33C691752E3F763600166CE0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +125,7 @@
 			);
 			name = Ideatica;
 			packageProductDependencies = (
+				33C691762E3F763600166CE0 /* Auth0 */,
 			);
 			productName = Ideatica;
 			productReference = 33C6912E2E3F658E00166CE0 /* Ideatica.app */;
@@ -195,6 +209,9 @@
 			);
 			mainGroup = 33C691252E3F658D00166CE0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				33C6916D2E3F754D00166CE0 /* XCRemoteSwiftPackageReference "Auth0.swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 33C6912F2E3F658E00166CE0 /* Products */;
 			projectDirPath = "";
@@ -397,6 +414,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Ideatica;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -436,6 +455,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Ideatica;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -593,6 +614,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		33C6916D2E3F754D00166CE0 /* XCRemoteSwiftPackageReference "Auth0.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/auth0/Auth0.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		33C691762E3F763600166CE0 /* Auth0 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 33C6916D2E3F754D00166CE0 /* XCRemoteSwiftPackageReference "Auth0.swift" */;
+			productName = Auth0;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 33C691262E3F658E00166CE0 /* Project object */;
 }
