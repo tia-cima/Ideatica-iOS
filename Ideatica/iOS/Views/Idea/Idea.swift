@@ -8,9 +8,10 @@
 import Foundation
 
 struct Idea: Identifiable, Decodable {
-    let id: Int
+    let id: String
     let title: String
     let topic: String
     let content: String
     let insertDate: String
+    let updateDate: String?
 }

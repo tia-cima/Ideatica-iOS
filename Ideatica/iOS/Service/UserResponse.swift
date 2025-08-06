@@ -13,5 +13,5 @@ struct UserResponse: Codable {
     let displayName: String
     let favoriteTopic: String?
     let insertDate: String
-    let updateDate: String
+    let updateDate: String?
 }
