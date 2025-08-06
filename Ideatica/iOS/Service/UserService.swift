@@ -25,8 +25,8 @@ final class UserService {
 
         let payload = CreateUserRequest(
             email: user.email,
-            displayName: user.nickname,
-            favoriteTopic: nil
+            username: user.username,
+            name: user.name
         )
 
         do {

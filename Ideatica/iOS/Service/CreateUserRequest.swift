@@ -9,6 +9,6 @@ import Foundation
 
 struct CreateUserRequest: Codable {
     let email: String
-    let displayName: String
-    let favoriteTopic: String?
+    let username: String
+    let name: String
 }

@@ -13,22 +13,22 @@ final class UserStore: ObservableObject {
 
     @Published var id: String? = nil
     @Published var email: String? = nil
-    @Published var displayName: String? = nil
-    @Published var favoriteTopic: String? = nil
+    @Published var username: String? = nil
+    @Published var name: String? = nil
 
     private init() {}
 
     func update(from response: UserResponse) {
         self.id = response.id
         self.email = response.email
-        self.displayName = response.displayName
-        self.favoriteTopic = response.favoriteTopic
+        self.username = response.username
+        self.name = response.name
     }
 
     func clear() {
         self.id = nil
         self.email = nil
-        self.displayName = nil
-        self.favoriteTopic = nil
+        self.username = nil
+        self.name = nil
     }
 }
