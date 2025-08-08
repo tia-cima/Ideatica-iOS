@@ -19,12 +19,12 @@ final class UserStore: ObservableObject {
 
     private init() {}
 
-    func update(from response: UserResponse, picture: String?) {
+    func update(from response: UserResponse, picture: String? = nil) {
         self.id = response.id
         self.email = response.email
         self.username = response.username
         self.name = response.name
-        self.picture = picture
+        if let picture { self.picture = picture }
     }
 
 
