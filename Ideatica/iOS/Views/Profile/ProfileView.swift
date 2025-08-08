@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ProfileView: View {
-    let userStore: UserStore
+    @EnvironmentObject var userStore: UserStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {

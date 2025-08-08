@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ProfileHeader: View {
-    @State var picture: String?
+    var picture: String?
 
     private let size: CGFloat = 100
 

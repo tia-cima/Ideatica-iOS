@@ -11,9 +11,9 @@ import Auth0
 final class AuthService: ObservableObject {
     @Published var user: User?
     @Published var token: String?
-    
+
     private let credentialsManager = CredentialsManager(authentication: Auth0.authentication())
-    
+
     func login() {
         Auth0
             .webAuth(clientId: "dL6N4ZAHcY2HAd3ZgHe9P9vd94MQqAFy",
@@ -25,11 +25,21 @@ final class AuthService: ObservableObject {
                 switch result {
                 case .success(let credentials):
                     
+                    print("TOKEN ID \n\n")
+                    print(credentials.idToken)
+                    
+                    print("\n\nTOKEN ACCESS \n\n")
+                    print(credentials.accessToken)
+                    
                     let token = credentials.accessToken
                     guard let decodedUser = User(from: credentials.idToken) else {
                         print("Failed to decode ID token into User")
                         return
                     }
+                    
+                    print("\n\nDECODED USER \n\n")
+                    print(decodedUser)
+
                     
                     self.token = token
                     self.credentialsManager.store(credentials: credentials)
@@ -38,8 +48,9 @@ final class AuthService: ObservableObject {
                         switch result {
                         case .success(let backendUser):
                             DispatchQueue.main.async {
+                                print("User data fetched from backend: \(backendUser)")
                                 UserStore.shared.update(from: backendUser, picture: decodedUser.picture)
-                                self.restoreSession()
+                                print("UserStore updated with backend user")
                             }
                         case .failure(let error):
                             print("Backend user fetch failed: \(error)")
@@ -69,7 +80,7 @@ final class AuthService: ObservableObject {
                 }
             }
     }
-    
+
     func restoreSession() {
         credentialsManager.credentials { result in
             switch result {
@@ -90,8 +101,9 @@ final class AuthService: ObservableObject {
                     switch result {
                     case .success(let backendUser):
                         DispatchQueue.main.async {
+                            print("Restored user from backend: \(backendUser)")
                             UserStore.shared.update(from: backendUser, picture: authUser?.picture)
-                            print("Restored user from backend")
+                            print("UserStore restored with backend user")
                         }
                     case .failure(let error):
                         print("Failed to fetch user from /sub: \(error)")
@@ -103,5 +115,4 @@ final class AuthService: ObservableObject {
             }
         }
     }
-
 }

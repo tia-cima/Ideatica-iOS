@@ -18,9 +18,9 @@ final class UserService {
     }
 
     func createOrFetchCurrentUser(token: String, user: User, completion: @escaping (Result<UserResponse, Error>) -> Void) {
-        guard let base = URL(string: ApiConfig.baseURL),
-              let url = URL(string: "/auth/user/me", relativeTo: base) else {
-            return completion(.failure(URLError(.badURL)))
+        guard let url = URL(string: ApiConfig.baseURL + "/auth/user/me") else {
+            completion(.failure(ApiError.invalidURL))
+            return
         }
 
         var request = URLRequest(url: url)
@@ -33,7 +33,7 @@ final class UserService {
             username: user.username,
             name: user.name
         )
-
+        
         do {
             request.httpBody = try JSONEncoder().encode(payload)
         } catch {

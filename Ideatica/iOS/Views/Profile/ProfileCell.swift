@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ProfileCell: View {
-    @State var key: String?
-    @State var value: String?
+    var key: String?
+    var value: String?
 
     private let size: CGFloat = 14
 

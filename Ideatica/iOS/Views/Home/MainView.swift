@@ -37,8 +37,8 @@ struct MainView: View {
                     Label("Profile", systemImage: "person.crop.circle")
                 }
                 .tag(3)
-            
         }
+        .environmentObject(UserStore.shared)
         .onAppear {
             authService.restoreSession()
         }

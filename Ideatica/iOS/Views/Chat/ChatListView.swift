@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ChatListView: View {
     @ObservedObject var authService: AuthService
-    @ObservedObject private var userStore = UserStore.shared
+    @EnvironmentObject var userStore: UserStore
     @StateObject private var viewModel = ChatListViewModel()
 
     var body: some View {
