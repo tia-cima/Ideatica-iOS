@@ -62,6 +62,7 @@ final class AuthService: ObservableObject {
                     self.credentialsManager.clear()
                     self.token = nil
                     self.user = nil
+                    UserStore.shared.clear()
                 case .failure(let error):
                     print("Logout failed: \(error)")
                 }

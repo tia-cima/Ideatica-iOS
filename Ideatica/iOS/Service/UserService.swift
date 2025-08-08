@@ -47,8 +47,6 @@ final class UserService {
             do {
                 let decoded = try JSONDecoder().decode(UserResponse.self, from: data)
                 completion(.success(decoded))
-                print("User created or fetched successfully")
-                print(decoded)
             } catch {
                 completion(.failure(error))
             }
