@@ -14,7 +14,7 @@ final class ChatListViewModel: ObservableObject {
     @Published var isLoading = false
 
     func fetchConversations(userId: String, token: String) async {
-        guard let url = URL(string: "\(ApiConfig.baseURL)/api/conversation/all/\(userId)") else { return }
+        guard let url = URL(string: "\(ApiConfig.baseURLChat)/conversation/all/\(userId)") else { return }
 
         var req = URLRequest(url: url)
         req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -25,6 +25,7 @@ final class ChatListViewModel: ObservableObject {
         do {
             let (data, _) = try await URLSession.shared.data(for: req)
             let decoded = try JSONDecoder().decode([Conversation].self, from: data)
+            print(data)
             self.conversations = decoded
         } catch {
             print("Failed to fetch conversations: \(error)")

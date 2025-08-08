@@ -69,7 +69,7 @@ final class AuthService: ObservableObject {
             }
     }
     
-    func restoreSession() {
+    func restoreSession() { // todo non funzia
         credentialsManager.credentials { result in
             switch result {
             case .success(let credentials):

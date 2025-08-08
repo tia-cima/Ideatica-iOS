@@ -66,13 +66,9 @@ private struct ConversationRow: View {
             Text("Conversation \(convo.id)")
                 .font(.headline)
 
-            if let last = convo.latestMessage {
+            if let last = convo.lastMessageAt {
                 HStack(spacing: 6) {
-                    Text(last.content)
-                        .lineLimit(1)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Text(relativeTime(last.messageTimestamp))
+                    Text(relativeTime(last))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
