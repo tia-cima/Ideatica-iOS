@@ -25,12 +25,19 @@ struct MainView: View {
                     Label("New Idea", systemImage: "plus.square")
                 }
                 .tag(1)
+            
+            ChatListView(authService: authService)
+                .tabItem {
+                    Label("Chat", systemImage: "message")
+                }
+                .tag(2)
 
             ProfileTabView(authService: authService)
                 .tabItem {
                     Label("Profile", systemImage: "person.crop.circle")
                 }
-                .tag(2)
+                .tag(3)
+            
         }
         .onAppear {
             authService.restoreSession()

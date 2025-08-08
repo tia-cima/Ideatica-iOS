@@ -73,10 +73,23 @@ final class AuthService: ObservableObject {
         credentialsManager.credentials { result in
             switch result {
             case .success(let credentials):
-                print("Session restored")
                 DispatchQueue.main.async {
                     self.user = User(from: credentials.idToken)
                     self.token = credentials.accessToken
+                }
+
+                if let user = self.user {
+                    let token = credentials.accessToken
+                    UserService.shared.createOrFetchCurrentUser(token: token, user: user) { result in
+                        switch result {
+                        case .success(let backendUser):
+                            DispatchQueue.main.async {
+                                UserStore.shared.update(from: backendUser)
+                            }
+                        case .failure(let error):
+                            print("Backend user fetch failed: \(error)")
+                        }
+                    }
                 }
             case .failure(let error):
                 print("No valid session found: \(error)")

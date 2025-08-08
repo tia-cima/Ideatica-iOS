@@ -9,4 +9,5 @@ import Foundation
 
 struct ApiConfig {
     static let baseURL = "http://192.168.1.24:3000/api"
+    static let baseURLChat = "http://192.168.1.24:3001/api"
 }
