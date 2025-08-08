@@ -33,7 +33,8 @@ struct ChatListView: View {
                         .listStyle(.plain)
                         
                         Spacer()
-                        
+                    }
+                    .safeAreaInset(edge: .bottom) {
                         NavigationLink(destination: CreateConversationView(token: token)) {
                             Text("Create Conversation")
                                 .frame(maxWidth: .infinity)
@@ -43,7 +44,6 @@ struct ChatListView: View {
                         .padding(.top, 8)
                         .padding(.bottom, 12)
                         .background(.ultraThinMaterial)
-
                     }
                     .navigationTitle("Chats")
                     .task {

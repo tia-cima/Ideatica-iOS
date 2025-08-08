@@ -14,29 +14,23 @@ struct MainView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            IdeasView()
+            IdeasView(authService: authService)
                 .tabItem {
                     Label("Ideas", systemImage: "lightbulb")
                 }
                 .tag(0)
-
-            PostIdeaView(authService: authService, selectedTab: $selectedTab)
-                .tabItem {
-                    Label("New Idea", systemImage: "plus.square")
-                }
-                .tag(1)
             
             ChatListView(authService: authService)
                 .tabItem {
                     Label("Chat", systemImage: "message")
                 }
-                .tag(2)
+                .tag(1)
 
             ProfileTabView(authService: authService)
                 .tabItem {
                     Label("Profile", systemImage: "person.crop.circle")
                 }
-                .tag(3)
+                .tag(2)
         }
         .environmentObject(UserStore.shared)
         .onAppear {

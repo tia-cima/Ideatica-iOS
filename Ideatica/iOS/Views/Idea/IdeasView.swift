@@ -9,6 +9,7 @@ import SwiftUI
 
 struct IdeasView: View {
     @StateObject private var viewModel = IdeaListViewModel()
+    @ObservedObject var authService: AuthService
 
     var body: some View {
         NavigationView {
@@ -30,6 +31,17 @@ struct IdeasView: View {
             .navigationTitle("All Ideas")
             .task {
                 await viewModel.fetchIdeas()
+            }
+            .safeAreaInset(edge: .bottom) {
+                NavigationLink(destination: PostIdeaView(authService: authService, selectedTab: .constant(0))) {
+                    Text("New Idea")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(PrimaryButtonStyle(backgroundColor: .orange))
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+                .background(.ultraThinMaterial)
             }
         }
 
