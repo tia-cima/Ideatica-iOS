@@ -12,7 +12,6 @@ final class AuthService: ObservableObject {
     @Published var user: User?
     @Published var token: String?
     
-
     private let credentialsManager = CredentialsManager(authentication: Auth0.authentication())
     
     func login() {
@@ -25,20 +24,22 @@ final class AuthService: ObservableObject {
             .start { result in
                 switch result {
                 case .success(let credentials):
-                    self.user = User(from: credentials.idToken)
-                    self.token = credentials.accessToken
-                    self.credentialsManager.store(credentials: credentials)
                     
-                    guard let user = self.user else {
-                        print("Missing user")
+                    let token = credentials.accessToken
+                    guard let decodedUser = User(from: credentials.idToken) else {
+                        print("Failed to decode ID token into User")
                         return
                     }
-                    let token = credentials.accessToken
-                    UserService.shared.createOrFetchCurrentUser(token: token, user: user) { result in
+                    
+                    self.token = token
+                    self.credentialsManager.store(credentials: credentials)
+
+                    UserService.shared.createOrFetchCurrentUser(token: token, user: decodedUser) { result in
                         switch result {
                         case .success(let backendUser):
                             DispatchQueue.main.async {
-                                UserStore.shared.update(from: backendUser)
+                                UserStore.shared.update(from: backendUser, picture: decodedUser.picture)
+                                self.restoreSession()
                             }
                         case .failure(let error):
                             print("Backend user fetch failed: \(error)")
@@ -69,31 +70,38 @@ final class AuthService: ObservableObject {
             }
     }
     
-    func restoreSession() { // todo non funzia
+    func restoreSession() {
         credentialsManager.credentials { result in
             switch result {
             case .success(let credentials):
-                DispatchQueue.main.async {
-                    self.user = User(from: credentials.idToken)
-                    self.token = credentials.accessToken
+                
+                let token = credentials.accessToken
+                if token.isEmpty {
+                    print("No access token")
+                    return
                 }
 
-                if let user = self.user {
-                    let token = credentials.accessToken
-                    UserService.shared.createOrFetchCurrentUser(token: token, user: user) { result in
-                        switch result {
-                        case .success(let backendUser):
-                            DispatchQueue.main.async {
-                                UserStore.shared.update(from: backendUser)
-                            }
-                        case .failure(let error):
-                            print("Backend user fetch failed: \(error)")
+                let authUser = User(from: credentials.idToken)
+                DispatchQueue.main.async {
+                    self.token = token
+                }
+
+                UserService.shared.getCurrentUser(token: token) { result in
+                    switch result {
+                    case .success(let backendUser):
+                        DispatchQueue.main.async {
+                            UserStore.shared.update(from: backendUser, picture: authUser?.picture)
+                            print("Restored user from backend")
                         }
+                    case .failure(let error):
+                        print("Failed to fetch user from /sub: \(error)")
                     }
                 }
+
             case .failure(let error):
-                print("No valid session found: \(error)")
+                print("No valid session: \(error)")
             }
         }
     }
+
 }

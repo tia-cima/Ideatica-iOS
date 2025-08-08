@@ -14,45 +14,39 @@ struct ChatListView: View {
     @StateObject private var viewModel = ChatListViewModel()
 
     var body: some View {
-        Group {
-            if let token = authService.token, let userId = userStore.id {
-                VStack {
-                    TextField("Search by username", text: $viewModel.searchText)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .padding(10)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-                        .padding([.horizontal, .top])
-
-                    if viewModel.isLoading && viewModel.conversations.isEmpty {
-                        ProgressView().padding()
+        NavigationStack {
+            Group {
+                if let token = authService.token, let userId = userStore.id {
+                    VStack {
+                        if viewModel.isLoading && viewModel.conversations.isEmpty {
+                            ProgressView().padding()
+                        }
+                        
+                        List(viewModel.conversations) { convo in
+                            NavigationLink {
+                                Text("Chat for \(convo.id)")
+                                    .navigationTitle("Chat")
+                            } label: {
+                                ConversationRow(convo: convo)
+                            }
+                        }
+                        .listStyle(.plain)
                     }
-
-                    List(viewModel.conversations) { convo in
-                        NavigationLink {
-                            Text("Chat for \(convo.id)")
-                                .navigationTitle("Chat")
-                        } label: {
-                            ConversationRow(convo: convo)
+                    .navigationTitle("Chats")
+                    .task {
+                        await viewModel.fetchConversations(userId: userId, token: token)
+                    }
+                    .onReceive(authService.$token.compactMap { $0 }) { newToken in
+                        Task {
+                            await viewModel.fetchConversations(userId: userId, token: newToken)
                         }
                     }
-                    .listStyle(.plain)
-                }
-                .navigationTitle("Chats")
-                .task {
-                    await viewModel.fetchConversations(userId: userId, token: token)
-                }
-                .onReceive(authService.$token.compactMap { $0 }) { newToken in
-                    Task {
-                        await viewModel.fetchConversations(userId: userId, token: newToken)
+                    .refreshable {
+                        await viewModel.fetchConversations(userId: userId, token: token)
                     }
+                } else {
+                    LoginPromptView(authService: authService)
                 }
-                .refreshable {
-                    await viewModel.fetchConversations(userId: userId, token: token)
-                }
-            } else {
-                LoginPromptView(authService: authService)
             }
         }
     }

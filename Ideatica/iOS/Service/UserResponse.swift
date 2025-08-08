@@ -11,7 +11,7 @@ struct UserResponse: Codable {
     let id: String
     let email: String
     let username: String
-    let name: String?
+    let name: String
     let insertDate: String
-    let updateDate: String?
+    let updateDate: String
 }

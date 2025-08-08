@@ -25,7 +25,6 @@ final class ChatListViewModel: ObservableObject {
         do {
             let (data, _) = try await URLSession.shared.data(for: req)
             let decoded = try JSONDecoder().decode([Conversation].self, from: data)
-            print(data)
             self.conversations = decoded
         } catch {
             print("Failed to fetch conversations: \(error)")

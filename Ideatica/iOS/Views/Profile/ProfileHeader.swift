@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ProfileHeader: View {
-    @State var picture: String
+    @State var picture: String?
 
     private let size: CGFloat = 100
 
@@ -16,15 +16,21 @@ struct ProfileHeader: View {
     #if os(iOS)
         HStack {
             Spacer()
-            AsyncImage(url: URL(string: picture), content: { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            }, placeholder: {
-                Color.gray.opacity(0.1)
-            })
-            .frame(width: size, height: size)
-            .clipShape(Circle())
+            if let picture, let url = URL(string: picture) {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Color.gray.opacity(0.1)
+                }
+                .frame(width: size, height: size)
+                .clipShape(Circle())
+            } else {
+                Circle()
+                    .fill(Color.gray.opacity(0.1))
+                    .frame(width: size, height: size)
+            }
             Spacer()
         }
         .padding(.bottom, 24)

@@ -8,19 +8,17 @@
 import SwiftUI
 
 struct ProfileView: View {
-    let user: User
+    let userStore: UserStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            ProfileHeader(picture: user.picture)
+            ProfileHeader(picture: userStore.picture)
                 .padding(.bottom, 8)
 
             Group {
-                ProfileCell(key: "ID", value: user.id)
-                ProfileCell(key: "Name", value: user.name)
-                ProfileCell(key: "Email", value: user.email)
-                ProfileCell(key: "Email verified?", value: user.emailVerified)
-                ProfileCell(key: "Updated at", value: user.updatedAt)
+                ProfileCell(key: "Username", value: userStore.username)
+                ProfileCell(key: "Name", value: userStore.name)
+                ProfileCell(key: "Email", value: userStore.email)
             }
             .padding(.horizontal)
         }

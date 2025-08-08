@@ -11,10 +11,15 @@ final class UserService {
     static let shared = UserService()
     
     private init() {}
+    
+    enum ApiError: Error {
+        case invalidURL
+        case emptyResponse
+    }
 
     func createOrFetchCurrentUser(token: String, user: User, completion: @escaping (Result<UserResponse, Error>) -> Void) {
         guard let base = URL(string: ApiConfig.baseURL),
-              let url = URL(string: "/api/auth/user/me", relativeTo: base) else {
+              let url = URL(string: "/auth/user/me", relativeTo: base) else {
             return completion(.failure(URLError(.badURL)))
         }
 
@@ -47,6 +52,36 @@ final class UserService {
             do {
                 let decoded = try JSONDecoder().decode(UserResponse.self, from: data)
                 completion(.success(decoded))
+            } catch {
+                completion(.failure(error))
+            }
+        }.resume()
+    }
+    
+    func getCurrentUser(token: String, completion: @escaping (Result<UserResponse, Error>) -> Void) {
+        guard let url = URL(string: ApiConfig.baseURL + "/auth/user/sub") else {
+            completion(.failure(ApiError.invalidURL))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let data = data else {
+                completion(.failure(ApiError.emptyResponse))
+                return
+            }
+
+            do {
+                let user = try JSONDecoder().decode(UserResponse.self, from: data)
+                completion(.success(user))
             } catch {
                 completion(.failure(error))
             }

@@ -10,13 +10,14 @@ import SwiftUI
 
 struct ProfileTabView: View {
     @ObservedObject var authService: AuthService
+    @ObservedObject private var userStore = UserStore.shared
 
     var body: some View {
         NavigationStack {
-            if let user = authService.user {
+            if let token = authService.token {
                 ScrollView {
                     VStack(spacing: 24) {
-                        ProfileView(user: user)
+                        ProfileView(userStore: userStore)
 
                         NavigationLink(destination: MyIdeasView(authService: authService)) {
                             Text("View My Ideas")
