@@ -24,13 +24,26 @@ struct ChatListView: View {
                         
                         List(viewModel.conversations) { convo in
                             NavigationLink {
-                                Text("Chat for \(convo.id)")
+                                Text("Chat for \(convo.title)")
                                     .navigationTitle("Chat")
                             } label: {
                                 ConversationRow(convo: convo)
                             }
                         }
                         .listStyle(.plain)
+                        
+                        Spacer()
+                        
+                        NavigationLink(destination: CreateConversationView(token: token)) {
+                            Text("Create Conversation")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(PrimaryButtonStyle(backgroundColor: .orange))
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                        .padding(.bottom, 12)
+                        .background(.ultraThinMaterial)
+
                     }
                     .navigationTitle("Chats")
                     .task {
@@ -57,7 +70,7 @@ private struct ConversationRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Conversation \(convo.id)")
+            Text("Conversation with \(convo.title)")
                 .font(.headline)
 
             if let last = convo.lastMessageAt {
@@ -76,7 +89,9 @@ private struct ConversationRow: View {
 
     private func relativeTime(_ iso: String) -> String {
         let fmt = ISO8601DateFormatter()
+        fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         guard let date = fmt.date(from: iso) else { return "" }
+        
         let rel = RelativeDateTimeFormatter()
         rel.unitsStyle = .abbreviated
         return rel.localizedString(for: date, relativeTo: Date())
