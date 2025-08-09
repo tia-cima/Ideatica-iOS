@@ -7,14 +7,33 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct MessageView: View {
-    let conversationId: UUID
+    let conversationId: String
     let conversationTitle: String
     let token: String
     let currentUserId: String
+    let peerUserId: String     // <-- needed for SEND
 
     @StateObject private var vm = MessageViewModel()
     @State private var inputText = ""
+    @StateObject private var ws: ChatWebSocket
+
+    init(conversationId: String,
+         conversationTitle: String,
+         token: String,
+         currentUserId: String,
+         peerUserId: String) {
+        self.conversationId = conversationId
+        self.conversationTitle = conversationTitle
+        self.token = token
+        self.currentUserId = currentUserId
+        self.peerUserId = peerUserId
+        // Adjust the URL to match your WebSocketConfig
+        let url = URL(string: ApiConfig.wsBaseURL + "/ws/chat")!
+        _ws = StateObject(wrappedValue: ChatWebSocket(wsURL: url))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -31,18 +50,45 @@ struct MessageView: View {
                     withAnimation { proxy.scrollTo("bottom", anchor: .bottom) }
                 }
                 .task {
-                    await vm.fetchMessages(conversationId: conversationId.uuidString, token: token)
+                    await vm.fetchMessages(conversationId: conversationId, token: token)
                     proxy.scrollTo("bottom", anchor: .bottom)
                 }
                 .refreshable {
-                    await vm.fetchMessages(conversationId: conversationId.uuidString, token: token)
+                    await vm.fetchMessages(conversationId: conversationId, token: token)
                 }
             }
         }
         .navigationTitle(conversationTitle.isEmpty ? "Chat" : conversationTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .bottom) {
-            composer
+        .safeAreaInset(edge: .bottom) { composer }
+        .onAppear {
+            ws.connect(conversationId: conversationId)
+            NotificationCenter.default.addObserver(
+                forName: .didReceiveChatMessage,
+                object: nil,
+                queue: .main
+            ) { note in
+                guard let text = note.userInfo?["payload"] as? String else { return }
+                // Try decode KafkaMessage and append to UI
+                if let data = text.data(using: .utf8),
+                   let km = try? JSONDecoder().decode(IncomingKafkaMessage.self, from: data) {
+                    let msg = Message(
+                        conversationId: UUID(uuidString: conversationId)!,
+                        messageId: UUID().uuidString, // client temp id
+                        senderId: km.from,
+                        content: km.content,
+                        messageTimestamp: km.timestamp
+                    )
+                    vm.messages.append(msg)
+                } else {
+                    // server might send simple text acks like "Subscribed to: <id>"
+                    print("WS text:", text)
+                }
+            }
+        }
+        .onDisappear {
+            NotificationCenter.default.removeObserver(self, name: .didReceiveChatMessage, object: nil)
+            ws.disconnect()
         }
     }
 
@@ -51,9 +97,18 @@ struct MessageView: View {
             TextField("Message…", text: $inputText, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(1...4)
+                .onChange(of: inputText) { _, newValue in
+                    let lowered = newValue.lowercased()
+                    if lowered != newValue { inputText = lowered }
+                }
 
             Button {
-                // TODO: hook up send later
+                let content = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !content.isEmpty else { return }
+                ws.sendMessage(conversationId: conversationId,
+                               from: currentUserId,
+                               to: peerUserId,
+                               content: content)
                 inputText = ""
             } label: {
                 Image(systemName: "paperplane.fill")
@@ -68,7 +123,6 @@ struct MessageView: View {
         .background(.ultraThinMaterial)
     }
 }
-
 // MARK: - Messages List (extracted to help the compiler)
 private struct MessagesList: View {
     let messages: [Message]

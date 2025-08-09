@@ -71,14 +71,18 @@ private struct ChatListRow: View {
     var body: some View {
         NavigationLink {
             MessageView(
-                conversationId: convo.id,
+                conversationId: convo.id.uuidString,
                 conversationTitle: convo.title,
                 token: token,
-                currentUserId: currentUserId
+                currentUserId: currentUserId,
+                peerUserId: peerUserId
             )
         } label: {
             ConversationRow(convo: convo)
         }
+    }
+    private var peerUserId: String {
+        convo.participantIds.first { $0 != currentUserId } ?? currentUserId
     }
 }
 
@@ -97,7 +101,7 @@ private struct ConversationRow: View {
                         .foregroundColor(.secondary)
                 }
             } else {
-                Text("No messages yet")
+                Text("No messages  yet")
                     .foregroundColor(.secondary)
                     .font(.subheadline)
             }
