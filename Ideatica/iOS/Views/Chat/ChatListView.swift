@@ -15,52 +15,69 @@ struct ChatListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if let token = authService.token, let userId = userStore.id {
-                    VStack {
-                        if viewModel.isLoading && viewModel.conversations.isEmpty {
-                            ProgressView().padding()
-                        }
-                        
-                        List(viewModel.conversations) { convo in
-                            NavigationLink {
-                                Text("Chat for \(convo.title)")
-                                    .navigationTitle("Chat")
-                            } label: {
-                                ConversationRow(convo: convo)
-                            }
-                        }
-                        .listStyle(.plain)
-                        
-                        Spacer()
-                    }
-                    .safeAreaInset(edge: .bottom) {
-                        NavigationLink(destination: CreateConversationView(token: token)) {
-                            Text("Create Conversation")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(PrimaryButtonStyle(backgroundColor: .orange))
-                        .padding(.horizontal)
-                        .padding(.top, 8)
-                        .padding(.bottom, 12)
-                        .background(.ultraThinMaterial)
-                    }
-                    .navigationTitle("Chats")
-                    .task {
-                        await viewModel.fetchConversations(userId: userId, token: token)
-                    }
-                    .onReceive(authService.$token.compactMap { $0 }) { newToken in
-                        Task {
-                            await viewModel.fetchConversations(userId: userId, token: newToken)
-                        }
-                    }
-                    .refreshable {
-                        await viewModel.fetchConversations(userId: userId, token: token)
-                    }
-                } else {
-                    LoginPromptView(authService: authService)
+            if let token = authService.token, let userId = userStore.id {
+                content(authToken: token, currentUserId: userId)
+            } else {
+                LoginPromptView(authService: authService)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func content(authToken token: String, currentUserId userId: String) -> some View {
+        VStack {
+            if viewModel.isLoading && viewModel.conversations.isEmpty {
+                ProgressView().padding()
+            }
+
+            List {
+                ForEach(viewModel.conversations) { convo in
+                    ChatListRow(convo: convo, token: token, currentUserId: userId)
                 }
             }
+            .listStyle(.plain)
+
+            Spacer()
+        }
+        .safeAreaInset(edge: .bottom) {
+            NavigationLink(destination: CreateConversationView(token: token)) {
+                Text("Create Conversation")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(PrimaryButtonStyle(backgroundColor: .orange))
+            .padding(.horizontal)
+            .padding(.top, 8)
+            .padding(.bottom, 12)
+            .background(.ultraThinMaterial)
+        }
+        .navigationTitle("Chats")
+        .task {
+            await viewModel.fetchConversations(userId: userId, token: token)
+        }
+        .onReceive(authService.$token.compactMap { $0 }) { newToken in
+            Task { await viewModel.fetchConversations(userId: userId, token: newToken) }
+        }
+        .refreshable {
+            await viewModel.fetchConversations(userId: userId, token: token)
+        }
+    }
+}
+
+private struct ChatListRow: View {
+    let convo: Conversation
+    let token: String
+    let currentUserId: String
+
+    var body: some View {
+        NavigationLink {
+            MessageView(
+                conversationId: convo.id,
+                conversationTitle: convo.title,
+                token: token,
+                currentUserId: currentUserId
+            )
+        } label: {
+            ConversationRow(convo: convo)
         }
     }
 }
@@ -91,7 +108,6 @@ private struct ConversationRow: View {
         let fmt = ISO8601DateFormatter()
         fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         guard let date = fmt.date(from: iso) else { return "" }
-        
         let rel = RelativeDateTimeFormatter()
         rel.unitsStyle = .abbreviated
         return rel.localizedString(for: date, relativeTo: Date())
