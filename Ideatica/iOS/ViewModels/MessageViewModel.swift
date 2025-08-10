@@ -15,7 +15,7 @@ final class MessageViewModel: ObservableObject {
     func fetchMessages(conversationId: String, token: String) async {
         await MainActor.run { isLoading = true; errorMessage = nil }
 
-        guard let url = URL(string: "\(ApiConfig.baseURLChat)/message/\(conversationId)") else {
+        guard let url = URL(string: "\(ApiConfig.baseURL)/message/\(conversationId)") else {
             await MainActor.run { self.errorMessage = "Invalid URL"; self.isLoading = false }
             return
         }

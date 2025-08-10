@@ -15,14 +15,10 @@ enum WSMessageType: String, Codable {
 struct OutgoingWSMessage: Codable {
     let type: WSMessageType
     let conversationId: String
-    let from: String?
-    let to: String?
     let content: String?
 }
 
-struct IncomingKafkaMessage: Codable {
-    let to: String
-    let from: String
+struct IncomingMessage: Codable {
     let content: String
     let timestamp: String
 }
@@ -57,16 +53,12 @@ final class ChatWebSocket: NSObject, ObservableObject, URLSessionWebSocketDelega
     }
 
     func subscribe() {
-        let msg = OutgoingWSMessage(type: .SUBSCRIBE,
-                                    conversationId: conversationId,
-                                    from: nil, to: nil, content: nil)
+        let msg = OutgoingWSMessage(type: .SUBSCRIBE, conversationId: conversationId, content: nil)
         send(msg)
     }
 
-    func sendMessage(conversationId: String, from: String, to: String, content: String) {
-        let msg = OutgoingWSMessage(type: .SEND,
-                                    conversationId: conversationId,
-                                    from: from, to: to, content: content)
+    func sendMessage(conversationId: String, content: String) {
+        let msg = OutgoingWSMessage(type: .SEND, conversationId: conversationId, content: content)
         send(msg)
     }
 

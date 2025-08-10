@@ -11,7 +11,6 @@ import Combine
 final class UserStore: ObservableObject {
     static let shared = UserStore()
 
-    @Published var id: String? = nil
     @Published var email: String? = nil
     @Published var username: String? = nil
     @Published var name: String? = nil
@@ -20,7 +19,6 @@ final class UserStore: ObservableObject {
     private init() {}
 
     func update(from response: UserResponse, picture: String? = nil) {
-        self.id = response.id
         self.email = response.email
         self.username = response.username
         self.name = response.name
@@ -29,7 +27,6 @@ final class UserStore: ObservableObject {
 
 
     func clear() {
-        self.id = nil
         self.email = nil
         self.username = nil
         self.name = nil
@@ -39,7 +36,6 @@ final class UserStore: ObservableObject {
     func debugPrint() {
         print("""
         UserStore:
-        - ID: \(id ?? "nil")
         - Email: \(email ?? "nil")
         - Username: \(username ?? "nil")
         - Name: \(name ?? "nil")

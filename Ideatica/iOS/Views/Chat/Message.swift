@@ -8,9 +8,9 @@
 import Foundation
 
 struct Message: Codable {
-    let conversationId: UUID
-    let messageId: String
-    let senderId: String
+    let conversationId: UUID?
+    let messageId: String?
+    let senderUsername: String?
     let content: String
     let messageTimestamp: String
 }

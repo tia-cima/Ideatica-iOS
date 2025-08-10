@@ -15,8 +15,8 @@ struct ChatListView: View {
 
     var body: some View {
         NavigationStack {
-            if let token = authService.token, let userId = userStore.id {
-                content(authToken: token, currentUserId: userId)
+            if let token = authService.token {
+                content(authToken: token)
             } else {
                 LoginPromptView(authService: authService)
             }
@@ -24,7 +24,7 @@ struct ChatListView: View {
     }
 
     @ViewBuilder
-    private func content(authToken token: String, currentUserId userId: String) -> some View {
+    private func content(authToken token: String) -> some View {
         VStack {
             if viewModel.isLoading && viewModel.conversations.isEmpty {
                 ProgressView().padding()
@@ -32,7 +32,7 @@ struct ChatListView: View {
 
             List {
                 ForEach(viewModel.conversations) { convo in
-                    ChatListRow(convo: convo, token: token, currentUserId: userId)
+                    ChatListRow(convo: convo, token: token)
                 }
             }
             .listStyle(.plain)
@@ -52,13 +52,13 @@ struct ChatListView: View {
         }
         .navigationTitle("Chats")
         .task {
-            await viewModel.fetchConversations(userId: userId, token: token)
+            await viewModel.fetchConversations(token: token)
         }
         .onReceive(authService.$token.compactMap { $0 }) { newToken in
-            Task { await viewModel.fetchConversations(userId: userId, token: newToken) }
+            Task { await viewModel.fetchConversations(token: newToken) }
         }
         .refreshable {
-            await viewModel.fetchConversations(userId: userId, token: token)
+            await viewModel.fetchConversations(token: token)
         }
     }
 }
@@ -66,7 +66,6 @@ struct ChatListView: View {
 private struct ChatListRow: View {
     let convo: Conversation
     let token: String
-    let currentUserId: String
 
     var body: some View {
         NavigationLink {
@@ -74,15 +73,10 @@ private struct ChatListRow: View {
                 conversationId: convo.id.uuidString,
                 conversationTitle: convo.title,
                 token: token,
-                currentUserId: currentUserId,
-                peerUserId: peerUserId
             )
         } label: {
             ConversationRow(convo: convo)
         }
-    }
-    private var peerUserId: String {
-        convo.participantIds.first { $0 != currentUserId } ?? currentUserId
     }
 }
 
@@ -101,7 +95,7 @@ private struct ConversationRow: View {
                         .foregroundColor(.secondary)
                 }
             } else {
-                Text("No messages  yet")
+                Text("No messages yet")
                     .foregroundColor(.secondary)
                     .font(.subheadline)
             }

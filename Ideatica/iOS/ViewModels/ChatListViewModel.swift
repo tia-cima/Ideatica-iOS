@@ -13,8 +13,8 @@ final class ChatListViewModel: ObservableObject {
     @Published var searchText = ""
     @Published var isLoading = false
 
-    func fetchConversations(userId: String, token: String) async {
-        guard let url = URL(string: "\(ApiConfig.baseURLChat)/conversation/all/\(userId)") else { return }
+    func fetchConversations(token: String) async {
+        guard let url = URL(string: "\(ApiConfig.baseURL)/conversation/all/me") else { return }
 
         var req = URLRequest(url: url)
         req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")

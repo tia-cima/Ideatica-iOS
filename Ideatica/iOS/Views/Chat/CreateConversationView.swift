@@ -4,7 +4,7 @@ struct CreateConversationView: View {
     @State private var username = ""
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var foundUser: ChatUserResponse?
+    @State private var foundUser: UserResponse?
     @State private var searchTask: Task<Void, Never>?
     @State private var showSuccess = false
     
@@ -49,7 +49,7 @@ struct CreateConversationView: View {
             if let user = foundUser {
                 List {
                     Button {
-                        Task { await createConversation(with: user.id) }
+                        Task { await createConversation(with: user.username) }
                     } label: {
                         Text(user.username)
                     }
@@ -79,7 +79,7 @@ struct CreateConversationView: View {
         errorMessage = nil
         foundUser = nil
         
-        guard let url = URL(string: "\(ApiConfig.baseURL)/public/user/username/\(username)") else {
+        guard let url = URL(string: "\(ApiConfig.baseURL)/api/auth/user/username/\(username)") else {
             errorMessage = "Invalid URL"
             isLoading = false
             return
@@ -97,7 +97,7 @@ struct CreateConversationView: View {
             }
             
             if httpResponse.statusCode == 200 {
-                let decoded = try JSONDecoder().decode(ChatUserResponse.self, from: data)
+                let decoded = try JSONDecoder().decode(UserResponse.self, from: data)
                 foundUser = decoded
             } else if httpResponse.statusCode == 404 {
                 errorMessage = "User not found"
@@ -114,17 +114,17 @@ struct CreateConversationView: View {
         isLoading = false
     }
     
-    private func createConversation(with otherUserId: String) async {
-        guard let myId = userStore.id else {
+    private func createConversation(with otherUsername: String) async {
+        guard let myUsername = userStore.username else {
             errorMessage = "Missing current user id"
             return
         }
         
         let body: [String: Any] = [
-            "participantIds": [myId, otherUserId]
+            "participantIds": [myUsername, otherUsername]
         ]
         
-        guard let url = URL(string: "\(ApiConfig.baseURLChat)/conversation/new"),
+        guard let url = URL(string: "\(ApiConfig.baseURL)/conversation/new"),
               let bodyData = try? JSONSerialization.data(withJSONObject: body) else {
             errorMessage = "Invalid request"
             return
@@ -158,10 +158,4 @@ struct CreateConversationView: View {
             errorMessage = "Request failed: \(error.localizedDescription)"
         }
     }
-}
-
-struct ChatUserResponse: Codable {
-    let id: String
-    let username: String
-    let name: String
 }

@@ -8,7 +8,8 @@
 import Foundation
 
 struct ApiConfig {
-    static let baseURL = "http://192.168.1.24:3000/api"
-    static let baseURLChat = "http://192.168.1.24:3001/api"
-    static let wsBaseURL = "ws://localhost:3001"
+    static let host = "192.168.1.24:8080"
+    static let baseURL = "http://" + host + "/api"
+    static let wsBaseURL = "ws://" + host
+    static let wsURLChat = wsBaseURL + "/ws/chat"
 }

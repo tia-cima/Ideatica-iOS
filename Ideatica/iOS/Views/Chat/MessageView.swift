@@ -13,8 +13,6 @@ struct MessageView: View {
     let conversationId: String
     let conversationTitle: String
     let token: String
-    let currentUserId: String
-    let peerUserId: String     // <-- needed for SEND
 
     @StateObject private var vm = MessageViewModel()
     @State private var inputText = ""
@@ -22,16 +20,11 @@ struct MessageView: View {
 
     init(conversationId: String,
          conversationTitle: String,
-         token: String,
-         currentUserId: String,
-         peerUserId: String) {
+         token: String) {
         self.conversationId = conversationId
         self.conversationTitle = conversationTitle
         self.token = token
-        self.currentUserId = currentUserId
-        self.peerUserId = peerUserId
-        // Adjust the URL to match your WebSocketConfig
-        let url = URL(string: ApiConfig.wsBaseURL + "/ws/chat")!
+        let url = URL(string: ApiConfig.wsURLChat)!
         _ws = StateObject(wrappedValue: ChatWebSocket(wsURL: url))
     }
 
@@ -43,7 +36,7 @@ struct MessageView: View {
 
             ScrollViewReader { proxy in
                 ScrollView {
-                    MessagesList(messages: vm.messages, currentUserId: currentUserId)
+                    MessagesList(messages: vm.messages)
                         .padding(.vertical, 8)
                 }
                 .onChange(of: vm.messages.count) { _, _ in
@@ -69,19 +62,17 @@ struct MessageView: View {
                 queue: .main
             ) { note in
                 guard let text = note.userInfo?["payload"] as? String else { return }
-                // Try decode KafkaMessage and append to UI
                 if let data = text.data(using: .utf8),
-                   let km = try? JSONDecoder().decode(IncomingKafkaMessage.self, from: data) {
+                   let response = try? JSONDecoder().decode(IncomingMessage.self, from: data) {
                     let msg = Message(
-                        conversationId: UUID(uuidString: conversationId)!,
-                        messageId: UUID().uuidString, // client temp id
-                        senderId: km.from,
-                        content: km.content,
-                        messageTimestamp: km.timestamp
+                        conversationId: nil,
+                        messageId: nil,
+                        senderUsername: nil,
+                        content: response.content,
+                        messageTimestamp: response.timestamp
                     )
                     vm.messages.append(msg)
                 } else {
-                    // server might send simple text acks like "Subscribed to: <id>"
                     print("WS text:", text)
                 }
             }
@@ -105,10 +96,7 @@ struct MessageView: View {
             Button {
                 let content = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !content.isEmpty else { return }
-                ws.sendMessage(conversationId: conversationId,
-                               from: currentUserId,
-                               to: peerUserId,
-                               content: content)
+                ws.sendMessage(conversationId: conversationId, content: content)
                 inputText = ""
             } label: {
                 Image(systemName: "paperplane.fill")
@@ -123,25 +111,23 @@ struct MessageView: View {
         .background(.ultraThinMaterial)
     }
 }
-// MARK: - Messages List (extracted to help the compiler)
 private struct MessagesList: View {
     let messages: [Message]
-    let currentUserId: String
 
     var body: some View {
         LazyVStack(spacing: 8) {
             ForEach(messages, id: \.messageId) { msg in
-                bubble(for: msg, me: currentUserId)
+                bubble(for: msg)
             }
             Color.clear.frame(height: 1).id("bottom")
         }
     }
 
     @ViewBuilder
-    private func bubble(for msg: Message, me: String) -> some View {
+    private func bubble(for msg: Message) -> some View {
         MessageBubbleView(
             text: msg.content,
-            isMine: msg.senderId == me,
+            isMine: true,
             timestampISO: msg.messageTimestamp
         )
         .id(msg.messageId)
@@ -153,8 +139,8 @@ private struct MessageBubbleView: View {
     let text: String
     let isMine: Bool
     let timestampISO: String
-
-    var body: some View {
+    
+   var body: some View {
         HStack {
             if isMine { Spacer(minLength: 40) }
             VStack(alignment: .leading, spacing: 4) {
