@@ -23,7 +23,7 @@ struct IncomingMessage: Codable {
     let messageId: String?
     let senderUsername: String
     let content: String
-    let timestamp: String
+    let messageTimestamp: String
 }
 
 @MainActor
@@ -41,10 +41,13 @@ final class ChatWebSocket: NSObject, ObservableObject, URLSessionWebSocketDelega
         self.urlSession = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
     }
 
-    func connect(conversationId: String) {
+    func connect(conversationId: String, bearerToken: String) {
         self.conversationId = conversationId
-        let request = URLRequest(url: wsURL)
-        task = urlSession.webSocketTask(with: request)
+
+        var req = URLRequest(url: wsURL)
+        req.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+
+        task = urlSession.webSocketTask(with: req)
         task?.resume()
         receiveLoop()
     }

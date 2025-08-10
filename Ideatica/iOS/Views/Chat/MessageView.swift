@@ -58,7 +58,7 @@ struct MessageView: View {
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) { composer }
         .onAppear {
-            ws.connect(conversationId: conversationId)
+            ws.connect(conversationId: conversationId, bearerToken: token)
             NotificationCenter.default.addObserver(
                 forName: .didReceiveChatMessage,
                 object: nil,
@@ -72,7 +72,7 @@ struct MessageView: View {
                         messageId: response.messageId,
                         senderUsername: response.senderUsername,
                         content: response.content,
-                        messageTimestamp: response.timestamp
+                        messageTimestamp: response.messageTimestamp
                     )
                     vm.messages.append(msg)
                 } else {
