@@ -7,11 +7,12 @@
 
 import SwiftUI
 
-import SwiftUI
+import SwiftUI // todo mettere senderUsername
 
 struct MessageView: View {
     let conversationId: String
     let conversationTitle: String
+    let currentUsername: String
     let token: String
 
     @StateObject private var vm = MessageViewModel()
@@ -20,9 +21,11 @@ struct MessageView: View {
 
     init(conversationId: String,
          conversationTitle: String,
+         currentUsername: String,
          token: String) {
         self.conversationId = conversationId
         self.conversationTitle = conversationTitle
+        self.currentUsername = currentUsername
         self.token = token
         let url = URL(string: ApiConfig.wsURLChat)!
         _ws = StateObject(wrappedValue: ChatWebSocket(wsURL: url))
@@ -36,7 +39,7 @@ struct MessageView: View {
 
             ScrollViewReader { proxy in
                 ScrollView {
-                    MessagesList(messages: vm.messages)
+                    MessagesList(messages: vm.messages, currentUsername: currentUsername)
                         .padding(.vertical, 8)
                 }
                 .onChange(of: vm.messages.count) { _, _ in
@@ -65,9 +68,9 @@ struct MessageView: View {
                 if let data = text.data(using: .utf8),
                    let response = try? JSONDecoder().decode(IncomingMessage.self, from: data) {
                     let msg = Message(
-                        conversationId: nil,
-                        messageId: nil,
-                        senderUsername: nil,
+                        conversationId: UUID(uuidString: response.conversationId)!,
+                        messageId: response.messageId,
+                        senderUsername: response.senderUsername,
                         content: response.content,
                         messageTimestamp: response.timestamp
                     )
@@ -113,21 +116,22 @@ struct MessageView: View {
 }
 private struct MessagesList: View {
     let messages: [Message]
+    let currentUsername: String
 
     var body: some View {
         LazyVStack(spacing: 8) {
             ForEach(messages, id: \.messageId) { msg in
-                bubble(for: msg)
+                bubble(for: msg, me: currentUsername)
             }
             Color.clear.frame(height: 1).id("bottom")
         }
     }
 
     @ViewBuilder
-    private func bubble(for msg: Message) -> some View {
+    private func bubble(for msg: Message, me: String) -> some View {
         MessageBubbleView(
             text: msg.content,
-            isMine: true,
+            isMine: msg.senderUsername == me,
             timestampISO: msg.messageTimestamp
         )
         .id(msg.messageId)

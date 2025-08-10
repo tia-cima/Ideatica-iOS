@@ -19,6 +19,9 @@ struct OutgoingWSMessage: Codable {
 }
 
 struct IncomingMessage: Codable {
+    let conversationId: String
+    let messageId: String?
+    let senderUsername: String
     let content: String
     let timestamp: String
 }
@@ -44,7 +47,6 @@ final class ChatWebSocket: NSObject, ObservableObject, URLSessionWebSocketDelega
         task = urlSession.webSocketTask(with: request)
         task?.resume()
         receiveLoop()
-        // We'll send SUBSCRIBE in urlSession(_:didOpenWithProtocol:) once connected
     }
 
     func disconnect() {

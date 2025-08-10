@@ -15,8 +15,8 @@ struct ChatListView: View {
 
     var body: some View {
         NavigationStack {
-            if let token = authService.token {
-                content(authToken: token)
+            if let token = authService.token, let username = userStore.username {
+                content(authToken: token, currentUsername: username)
             } else {
                 LoginPromptView(authService: authService)
             }
@@ -24,7 +24,7 @@ struct ChatListView: View {
     }
 
     @ViewBuilder
-    private func content(authToken token: String) -> some View {
+    private func content(authToken token: String, currentUsername username: String) -> some View {
         VStack {
             if viewModel.isLoading && viewModel.conversations.isEmpty {
                 ProgressView().padding()
@@ -32,7 +32,7 @@ struct ChatListView: View {
 
             List {
                 ForEach(viewModel.conversations) { convo in
-                    ChatListRow(convo: convo, token: token)
+                    ChatListRow(convo: convo, token: token, currentUsername: username)
                 }
             }
             .listStyle(.plain)
@@ -66,12 +66,14 @@ struct ChatListView: View {
 private struct ChatListRow: View {
     let convo: Conversation
     let token: String
+    let currentUsername: String
 
     var body: some View {
         NavigationLink {
             MessageView(
                 conversationId: convo.id.uuidString,
                 conversationTitle: convo.title,
+                currentUsername: currentUsername,
                 token: token,
             )
         } label: {
